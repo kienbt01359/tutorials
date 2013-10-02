@@ -8,6 +8,7 @@ class UsersController < ApplicationController
   end
 
   def show
+    @microposts = @user.microposts.paginate(page: params[:page], per_page: 5)
   end
 
   def new
@@ -61,9 +62,6 @@ class UsersController < ApplicationController
       params.require(:user).permit(:name, :email, :password, :password_confirmation)
     end
 
-    def signed_in_user
-      redirect_to signin_path, notice: "Please sign in" unless signed_in?
-    end
 
     def correct_user
       user = User.find params[:id]
