@@ -1,8 +1,10 @@
 class UsersController < ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :destroy]
-  #comment
+  before_action :correct_user, only: [:edit, :update]
+  before_action :signed_in_user, only: [:index, :edit, :update]
+
   def index
-    @users = User.all
+    @users = User.paginate(page: params[:page], per_page: 10)
   end
 
   def show
@@ -43,7 +45,7 @@ class UsersController < ApplicationController
   def destroy
     @user.destroy
     respond_to do |format|
-      format.html { redirect_to users_url }
+      format.html { redirect_to users_url, notice: "User was destroyed successfully!!!" }
       format.json { head :no_content }
     end
   end
@@ -57,5 +59,14 @@ class UsersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def user_params
       params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    end
+
+    def signed_in_user
+      redirect_to signin_path, notice: "Please sign in" unless signed_in?
+    end
+
+    def correct_user
+      user = User.find params[:id]
+      redirect_to root_path unless current_user? user
     end
 end
